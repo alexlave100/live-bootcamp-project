@@ -31,7 +31,7 @@ async fn should_return_422_if_malformed_input() {
             "pwd": "test321",
             "requires2FA": true
         })
-    ];
+    ]; 
 
     for test_case in test_cases.iter() {
         let response = app.post_signup(&test_case).await; // call `post_signup`
