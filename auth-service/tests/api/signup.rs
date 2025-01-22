@@ -1,7 +1,9 @@
+use auth_service::routes::SignupResponse;
+
 use crate::helpers::TestApp;
 
 #[tokio::test]
-async fn signup_returns_200_ok() {
+async fn should_return_201_if_valid_input() {
     let app = TestApp::new().await;
 
     let json = serde_json::json!({
@@ -12,7 +14,20 @@ async fn signup_returns_200_ok() {
 
     let response = app.post_signup(&json).await;
 
-    assert_eq!(response.status().as_u16(), 200);
+    assert_eq!(response.status().as_u16(), 201);
+
+    let expected_response = SignupResponse {
+        message: "User created successfully!".to_owned(),
+    };
+
+    // Assert that we are getting the correct response body!
+    assert_eq!(
+        response
+            .json::<SignupResponse>()
+            .await
+            .expect("Could not deserialize response body to UserBody"),
+        expected_response
+    );
 }
 
 #[tokio::test]

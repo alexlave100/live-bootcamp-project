@@ -1,0 +1,58 @@
+HashMaps
+
+-  let mut hashmap = HashMap::new();
+- insert(key, value); // insert
+- get(key); // get
+- entry("Yellow").or_insert(30); // if "Yellow" does not exist as a key, insert it with the value 30, if it does exist, do nothing
+// or_insert returns a mutable reference to our value, so we can dereference it and update the value in the HashMap
+    ex: let x = entry("Red").or_insert(0);
+        *x = 5; // Value for key "Red is now 5.
+
+- iterate over HashMap - foreach over KV tuple:
+    ex: for (key, value) in &hashmap {
+        let x = key;
+        let y = value;
+    }
+
+***********************************
+Data aliases
+
+arrays(multiple values of same type):
+let a1 = [1,2,3,4,5];
+
+tuples(multiple values of different types):
+let t1 = (5, 5.0, "5");
+let x = t1.0; // get value from tuple
+
+unit type:
+empty tuple // usually returned implicitly when no other type could/should be returned
+// functions that return a value implicitly returns the unit type
+
+// Type aliasing
+Used for readibility.
+Assigns a typa alias to a real type.
+Ex: let age = u8;
+let a1: age = 5; // alias 'age' is used instead of 'u8'
+
+***************************************
+
+RC smart pointer
+
+- RC = reference counting
+- Can only be used in single threaded applications
+- only allows immutable shared ownership of a value
+
+import it - use std::rc::Rc;
+
+****************************************
+RefCell
+
+Used in combination with RC smart pointer to get mutable shared ownership
+
+Uses unsafe rules to get around Rust ownership rules at compile time
+
+****************************************
+Deref Coercion
+
+Coerce a reference of one type to a reference of another
+Usually when passing values to functions
