@@ -1,12 +1,15 @@
 use std::error::Error;
 
 use app_state::AppState;
-use axum::{routing::post, serve::Serve, Router};
+use axum::{http::StatusCode, response::{IntoResponse, Response}, routing::post, serve::Serve, Json, Router};
+use domain::AuthAPIError;
+use serde::{Deserialize, Serialize};
 use tower_http::services::ServeDir;
 
 pub mod routes;
 pub mod domain;
 pub mod services;
+pub mod app_state;
 
 // This struct encapsulates our application-related logic.
 pub struct Application {
@@ -43,23 +46,44 @@ impl Application {
     }
 }
 
-pub mod app_state {
-    use std::sync::Arc;
-    use tokio::sync::RwLock;
+#[derive(Serialize, Deserialize)]
+pub struct ErrorResponse {
+    pub error: String,
+}
 
-    use crate::services::hashmap_user_store::HashmapUserStore;
-
-    // Using a type alias to improve readability!
-    pub type UserStoreType = Arc<RwLock<HashmapUserStore>>;
-
-    #[derive(Clone)]
-    pub struct AppState {
-        pub user_store: UserStoreType,
-    }
-
-    impl AppState {
-        pub fn new(user_store: UserStoreType) -> Self {
-            Self { user_store }
-        }
+impl IntoResponse for AuthAPIError {
+    fn into_response(self) -> Response {
+        let (status, error_message) = match self {
+            AuthAPIError::UserAlreadyExists => (StatusCode::CONFLICT, "User already exists"),
+            AuthAPIError::InvalidCredentials => (StatusCode::BAD_REQUEST, "Invalid credentials"),
+            AuthAPIError::UnexpectedError => {
+                (StatusCode::INTERNAL_SERVER_ERROR, "Unexpected error")
+            }
+        };
+        let body = Json(ErrorResponse {
+            error: error_message.to_string(),
+        });
+        (status, body).into_response()
     }
 }
+
+// pub mod app_state {
+//     use std::sync::Arc;
+//     use tokio::sync::RwLock;
+
+//     use crate::{domain::UserStore, services::hashmap_user_store::HashmapUserStore};
+
+//     // Using a type alias to improve readability!
+//     pub type UserStoreType = Arc<RwLock<dyn UserStore>>;
+
+//     #[derive(Clone)]
+//     pub struct AppState {
+//         pub user_store: UserStoreType,
+//     }
+
+//     impl AppState {
+//         pub fn new(user_store: UserStoreType) -> Self {
+//             Self { user_store }
+//         }
+//     }
+// }
