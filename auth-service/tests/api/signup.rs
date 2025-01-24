@@ -8,7 +8,7 @@ async fn should_return_201_if_valid_input() {
 
     let json = serde_json::json!({
         "email": "email@example.com",
-        "password": "password",
+        "password": "password123",
         "requires2FA": false
     });
 
@@ -49,7 +49,7 @@ async fn should_return_422_if_malformed_input() {
     ]; 
 
     for test_case in test_cases.iter() {
-        let response = app.post_signup(&test_case).await; // call `post_signup`
+        let response = app.post_signup(&test_case).await;
         assert_eq!(
             response.status().as_u16(),
             422,

@@ -1,13 +1,13 @@
 use std::collections::HashMap;
 
-use crate::domain::{User, UserStore, UserStoreError};
+use crate::domain::{Email, Password, User, UserStore, UserStoreError};
 
 // Create a new struct called `HashmapUserStore` containing a `users` field
 // which stores a `HashMap`` of email `String`s mapped to `User` objects.
 // Derive the `Default` trait for `HashmapUserStore`.
 #[derive(Default)]
 pub struct HashmapUserStore {
-    users: HashMap<String, User>
+    users: HashMap<Email, User>
 }
 
 #[async_trait::async_trait]
@@ -29,7 +29,7 @@ impl UserStore for HashmapUserStore {
     // This function should return a `Result` type containing either a
     // `User` object or a `UserStoreError`.
     // Return `UserStoreError::UserNotFound` if the user can not be found.
-    async fn get_user(&self, email: &str) -> Result<User, UserStoreError> {
+    async fn get_user(&self, email: &Email) -> Result<User, UserStoreError> {
         match self.users.get(email) {
             Some(user) => Ok(user.clone()),
             None => Err(UserStoreError::UserNotFound),
@@ -43,7 +43,7 @@ impl UserStore for HashmapUserStore {
     // Return `UserStoreError::UserNotFound` if the user can not be found.
     // Return `UserStoreError::InvalidCredentials` if the password is incorrect.
 
-    async fn validate_user(&self, email: &str, password: &str) -> Result<(), UserStoreError>{
+    async fn validate_user(&self, email: &Email, password: &Password) -> Result<(), UserStoreError>{
         match self.users.get(email) {
             Some(user) => {
                 if user.password.eq(password) {
