@@ -1,4 +1,4 @@
-use auth_service::{routes::SignupResponse, ErrorResponse};
+use auth_service::{domain::ErrorResponse, routes::SignupResponse};
 
 use crate::helpers::TestApp;
 

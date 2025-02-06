@@ -12,6 +12,7 @@ cd ..
 ## Run servers locally (Manually)
 #### App service
 ```bash
+./docker.sh
 cd app-service
 cargo watch -q -c -w src/ -w assets/ -w templates/ -x run
 ```
