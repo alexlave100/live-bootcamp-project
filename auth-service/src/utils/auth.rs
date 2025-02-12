@@ -6,9 +6,6 @@ use serde::{Deserialize, Serialize};
 use crate::{app_state::BannedTokenStoreType, domain::email::Email, services::HashsetBannedTokenStore};
 use super::{constants::JWT_COOKIE_NAME, JWT_SECRET};
 
-// This is definitely NOT a good secret. We will update it soon!
-// const JWT_SECRET: &str = "secret";
-
 // Create cookie with a new JWT auth token
 pub fn generate_auth_cookie(email: &Email) -> Result<Cookie<'static>, GenerateTokenError> {
     let token = generate_auth_token(email)?;

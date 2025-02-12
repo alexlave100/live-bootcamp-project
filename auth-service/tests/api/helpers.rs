@@ -1,9 +1,9 @@
 use std::sync::Arc;
 
 use auth_service::{
-    app_state::{AppState, BannedTokenStoreType}, services::{hashmap_user_store::HashmapUserStore, HashsetBannedTokenStore}, utils::test, Application
+    app_state::{AppState, BannedTokenStoreType, TwoFACodeStoreType}, services::{hashmap_user_store::HashmapUserStore, HashmapTwoFACodeStore, HashsetBannedTokenStore, MockEmailClient}, utils::test, Application
 };
-use reqwest::{cookie::Jar, Client};
+use reqwest::cookie::Jar;
 use tokio::sync::RwLock;
 use uuid::Uuid;
 
@@ -11,15 +11,18 @@ pub struct TestApp {
     pub address: String,
     pub cookie_jar: Arc<Jar>,
     pub http_client: reqwest::Client,
-    pub banned_token_store: BannedTokenStoreType
+    pub banned_token_store: BannedTokenStoreType,
+    pub two_fa_code_store: TwoFACodeStoreType,
 }
 
 impl TestApp {
     pub async fn new() -> Self {
         let user_store = Arc::new(RwLock::new(HashmapUserStore::default()));
         let banned_token_store = Arc::new(RwLock::new(HashsetBannedTokenStore::default()));
+        let two_fa_code_store = Arc::new(RwLock::new(HashmapTwoFACodeStore::default()));
+        let email_client = Arc::new(RwLock::new(MockEmailClient{}));
 
-        let app_state = AppState::new(user_store, banned_token_store.clone());
+        let app_state = AppState::new(user_store, banned_token_store.clone(), two_fa_code_store.clone(), email_client);
         
         let app = Application::build(app_state, test::APP_ADDRESS)
             .await
@@ -44,7 +47,8 @@ impl TestApp {
             address,
             cookie_jar,
             http_client,
-            banned_token_store
+            banned_token_store,
+            two_fa_code_store
         }
     }
 
@@ -86,14 +90,13 @@ impl TestApp {
             .expect("Failed to execute request.")
     }
 
-    pub async fn post_verify_2fa(&self, code: &str) -> reqwest::Response {
-        let json = serde_json::json!({
-            "code": code,
-        });
-
+    pub async fn post_verify_2fa<Body>(&self, body: &Body) -> reqwest::Response
+    where
+        Body: serde::Serialize,
+    {
         self.http_client
-            .post(&format!("{}/verify-2fa", &self.address))
-            .json(&json)
+            .post(format!("{}/verify-2fa", &self.address))
+            .json(body)
             .send()
             .await
             .expect("Failed to execute request.")
