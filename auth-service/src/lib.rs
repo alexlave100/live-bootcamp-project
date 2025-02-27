@@ -2,6 +2,8 @@ use std::error::Error;
 
 use app_state::AppState;
 use axum::{http::{Method, StatusCode}, response::{IntoResponse, Response}, routing::post, serve::Serve, Json, Router};
+use redis::{Client, RedisResult};
+use sqlx::{postgres::PgPoolOptions, PgPool};
 use tower_http::{cors::CorsLayer, services::ServeDir};
 
 pub mod routes;
@@ -57,6 +59,16 @@ impl Application {
         println!("listening on {}", &self.address);
         self.server.await
     }
+}
+
+pub async fn get_postgres_pool(url: &str) -> Result<PgPool, sqlx::Error> {
+    // Create a new PostgreSQL connection pool
+    PgPoolOptions::new().max_connections(5).connect(url).await
+}
+
+pub fn get_redis_client(redis_hostname: String) -> RedisResult<Client> {
+    let redis_url = format!("redis://{}/", redis_hostname);
+    redis::Client::open(redis_url)
 }
 
 // #[derive(Serialize, Deserialize)]

@@ -30,7 +30,7 @@ pub async fn logout(State(state): State<AppState>, jar: CookieJar) -> (CookieJar
         .await
         .is_err()
     {
-        return (jar, Err(AuthAPIError::UnexpectedError));
+       return (jar, Err(AuthAPIError::UnexpectedError));
     }
 
     let jar = jar.remove(JWT_COOKIE_NAME);

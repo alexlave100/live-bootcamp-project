@@ -3,7 +3,7 @@ use chrono::Utc;
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Validation};
 use serde::{Deserialize, Serialize};
 
-use crate::{app_state::BannedTokenStoreType, domain::email::Email, services::HashsetBannedTokenStore};
+use crate::{app_state::BannedTokenStoreType, domain::email::Email, services::data_stores::HashsetBannedTokenStore};
 use super::{constants::JWT_COOKIE_NAME, JWT_SECRET};
 
 // Create cookie with a new JWT auth token

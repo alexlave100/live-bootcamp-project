@@ -50,6 +50,8 @@ async fn should_return_200_if_valid_credentials_and_2fa_disabled() {
         .expect("No auth cookie found");
 
     assert!(!auth_cookie.value().is_empty());
+
+    app.cleanup_test().await;
 }
 
 #[tokio::test]
@@ -74,6 +76,8 @@ async fn should_return_401_if_incorrect_credentials() {
     let response = app.post_login(&json_body).await;
 
     assert_eq!(response.status().as_u16(), 401);
+
+    app.cleanup_test().await;
 }
 
 #[tokio::test]
@@ -98,6 +102,8 @@ async fn should_return_400_if_invalid_input() {
     let response = app.post_login(&json).await;
 
     assert_eq!(response.status().as_u16(), 400);
+
+    app.cleanup_test().await;
 }
 
 #[tokio::test]
@@ -122,6 +128,8 @@ async fn should_return_422_if_malformed_credentials() {
     let response = app.post_login(&json).await;
 
     assert_eq!(response.status().as_u16(), 422);
+
+    app.cleanup_test().await;
 }
 
 #[tokio::test]
@@ -160,4 +168,6 @@ async fn should_return_206_if_valid_credentials_and_2fa_enabled() {
     let code = app.two_fa_code_store.read().await.get_code(email_result).await.expect("Failed to get 2FA code");
 
     assert_eq!(json_body.login_attempt_id, code.0.as_ref());
+
+    app.cleanup_test().await;
 }

@@ -15,10 +15,15 @@ pub trait UserStore: Send + Sync {
 }
 
 #[async_trait::async_trait]
-pub trait BannedTokenStore: Send + Sync {
-    async fn store_token(&mut self, token: String) -> Result<bool, bool>;
+pub trait BannedTokenStore {
+    async fn store_token(&mut self, token: String) -> Result<(), BannedTokenStoreError>;
 
-    async fn token_exists(&self, token: &str) -> Result<bool, bool>;
+    async fn token_exists(&self, token: &str) -> Result<bool, BannedTokenStoreError>;
+}
+
+#[derive(Debug)]
+pub enum BannedTokenStoreError {
+    UnexpectedError,
 }
 
 #[derive(Debug, PartialEq)]

@@ -36,6 +36,8 @@ async fn should_return_422_if_malformed_input() {
     
         assert_eq!(two_fa_response.status(), 422);
     }
+
+    app.cleanup_test().await;
 }
 
 #[tokio::test]
@@ -68,6 +70,8 @@ async fn should_return_400_if_invalid_input() {
             "Invalid credentials".to_owned()
         );
     }
+
+    app.cleanup_test().await;
 }
 
 #[tokio::test]
@@ -131,6 +135,8 @@ async fn should_return_200_if_correct_code() {
         .expect("No auth cookie found");
 
     assert!(!auth_cookie.value().is_empty());
+
+    app.cleanup_test().await;
 }
 
 #[tokio::test]
@@ -198,4 +204,6 @@ async fn should_return_401_if_same_code_twice() {
     let response = app.post_verify_2fa(&request_body).await;
 
     assert_eq!(response.status().as_u16(), 401);
+
+    app.cleanup_test().await;
 }
