@@ -141,9 +141,6 @@ async fn configure_postgresql(db_name: &str) -> PgPool {
     println!("DATABASE_URL: {postgresql_conn_url}");
     println!("DB_NAME: {db_name}");
 
-    // // We are creating a new database for each test case, and we need to ensure each database has a unique name!
-    // let db_name = Uuid::new_v4().to_string();
-
     configure_database(&postgresql_conn_url, db_name).await;
 
     let postgresql_conn_url_with_db = format!("{}/{}", postgresql_conn_url, db_name);
