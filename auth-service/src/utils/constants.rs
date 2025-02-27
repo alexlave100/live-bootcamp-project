@@ -12,8 +12,8 @@ lazy_static! {
 fn set_db_url() -> String {
     dotenv().ok();
 
-    // let db_url = std_env::var(env::DATABASE_URL_ENV_VAR).expect("Database URL must be set.");
-    let db_url = "postgres://postgres:your_postgresql_password@db:5432".to_owned();
+    let db_url = std_env::var(env::DATABASE_URL_ENV_VAR).expect("Database URL must be set.");
+
     if db_url.is_empty() {
         panic!("DATABASE_URL must not be empty.");
     }

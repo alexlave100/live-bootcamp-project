@@ -137,6 +137,9 @@ impl TestApp {
 
 async fn configure_postgresql(db_name: &str) -> PgPool {
     let postgresql_conn_url = DATABASE_URL.to_owned();
+    
+    println!("DATABASE_URL: {postgresql_conn_url}");
+    println!("DB_NAME: {db_name}");
 
     // // We are creating a new database for each test case, and we need to ensure each database has a unique name!
     // let db_name = Uuid::new_v4().to_string();
