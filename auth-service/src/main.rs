@@ -1,21 +1,28 @@
 use std::sync::Arc;
 
-use auth_service::{app_state::AppState, domain::{EmailClient, TwoFACode, TwoFACodeStore}, get_postgres_pool, get_redis_client, services::{data_stores::{HashmapTwoFACodeStore, HashmapUserStore, HashsetBannedTokenStore, PostgresUserStore, RedisBannedTokenStore}, MockEmailClient}, utils::{prod, DATABASE_URL, REDIS_HOST_NAME}, Application};
+use auth_service::{app_state::AppState, domain::{EmailClient, TwoFACode, TwoFACodeStore}, get_postgres_pool, get_redis_client, services::{data_stores::{HashmapTwoFACodeStore, HashmapUserStore, HashsetBannedTokenStore, PostgresUserStore, RedisBannedTokenStore, RedisTwoFACodeStore}, MockEmailClient}, utils::{init_tracing, prod, DATABASE_URL, REDIS_HOST_NAME}, Application};
 use sqlx::PgPool;
 use tokio::sync::RwLock;
 
 #[tokio::main]
 async fn main() {
+    color_eyre::install().expect("Failed to install color_eyre");
+    init_tracing().expect("Failed to initialize tracing");
+    
     // We will use this PostgreSQL pool in the next task! 
     let pg_pool = configure_postgresql().await;
     let redis_connection = Arc::new(RwLock::new(configure_redis()));
 
     // let user_store = Arc::new(RwLock::new(HashmapUserStore::default()));
     let user_store = Arc::new(RwLock::new(PostgresUserStore::new(pg_pool)));
+    
     let banned_token_store = Arc::new(RwLock::new(RedisBannedTokenStore::new(
         redis_connection.clone(),
     )));
-    let two_fa_code_store = Arc::new(RwLock::new(HashmapTwoFACodeStore::default()));
+    
+    let two_fa_code_store = Arc::new(RwLock::new(RedisTwoFACodeStore::new(
+        redis_connection)));
+    
     let email_client = Arc::new(RwLock::new(MockEmailClient{}));
 
     let app_state = AppState::new(user_store, banned_token_store, two_fa_code_store, email_client);

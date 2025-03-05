@@ -1,10 +1,12 @@
 use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
+use color_eyre::eyre::eyre;
 use serde::{Deserialize, Serialize};
 
 use crate::{app_state::AppState, domain::User};
 
 use crate::domain::{AuthAPIError, Email, Password};
 
+#[tracing::instrument(name = "Signup", skip_all)]
 pub async fn signup(
     State(state): State<AppState>,
     Json(request): Json<SignupRequest>,
@@ -32,8 +34,8 @@ pub async fn signup(
     }
 
     // instead of using unwrap, early return AuthAPIError::UnexpectedError if add_user() fails.
-    if user_store.add_user(user).await.is_err() {
-        return Err(AuthAPIError::UnexpectedError);
+    if let Err(e) = user_store.add_user(user).await {
+        return Err(AuthAPIError::UnexpectedError(e.into()));
     }
 
     let response = Json(SignupResponse {
